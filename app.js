@@ -409,8 +409,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!gameGuessInput.contains(e.target) && !dropdownGame.contains(e.target)) dropdownGame.classList.remove("active");
     });
 
-    // Custom File Uploader logic
-    fileUpload.addEventListener("change", (e) => {
+    // Custom File Uploader logic (only if element exists)
+    if (fileUpload) fileUpload.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
@@ -613,6 +613,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (visualizerMode === 'search') {
       updateVisualizer();
     }
+  }
+
+  // Hide the main search suggestions dropdown
+  function hideSuggestions() {
+    dropdown.classList.remove("active");
+    suggestionsList.innerHTML = "";
+    if (suggestionsMetrics) suggestionsMetrics.textContent = "0 matches";
   }
 
   // =====================================================================
