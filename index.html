@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team SJA's Autocomplete Engine & Developer Hub</title>
+  <meta name="description" content="A highly optimized Radix Tree engine featuring a city geoguess game, SQL/JSON database seeding tool, and benchmark suites by Team SJA.">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <!-- Background canvas for active particle effects -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- Premium ambient background glowing spots -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <div class="app-container">
+    
+    <!-- Header Section -->
+    <header>
+      <div class="brand-section">
+        <h1>Team SJA's <span style="color: var(--color-accent);">Site</span></h1>
+        <p>Radix Tree Autocomplete Engine, Database Seed Exporter & Gaming Hub</p>
+        <div class="brand-badges">
+          <span class="badge success">
+            <span style="display:inline-block; width:8px; height:8px; background:var(--color-success); border-radius:50%"></span>
+            15,000 Cities Loaded
+          </span>
+          <span class="badge accent">
+            <span>⚡</span> Sub-millisecond Lookups
+          </span>
+          <button id="audio-toggle-btn" class="badge" style="cursor: pointer; background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); color: var(--color-primary); font-family: inherit;">
+            <span>🔊</span> Sounds: On
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="tab-navigation">
+        <button id="tab-btn-engine" class="tab-btn active"><span>🔍</span> Autocomplete Engine</button>
+        <button id="tab-btn-routes" class="tab-btn"><span>💻</span> Database Seed Exporter</button>
+        <button id="tab-btn-game" class="tab-btn"><span>🎮</span> Geoguess Spelling Game</button>
+      </div>
+    </header>
+
+    <!-- Metrics Dashboard Row (Shared) -->
+    <div class="metrics-row">
+      <div class="metric-card highlighted">
+        <div class="metric-label">Active Database</div>
+        <div id="stat-cities-count" class="metric-value">15,000</div>
+        <div class="metric-desc">Cleaned GeoNames Indian cities</div>
+      </div>
+      
+      <div class="metric-card">
+        <div class="metric-label">Radix Compression</div>
+        <div id="stat-node-reduction" class="metric-value">0.0%</div>
+        <div class="metric-desc">Fewer nodes than standard Trie</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-label">Engine Build Time</div>
+        <div id="stat-build-time" class="metric-value">0.00 ms</div>
+        <div class="metric-desc">Trie construction latency</div>
+      </div>
+
+      <div class="metric-card" id="card-latency">
+        <div class="metric-label">Lookup Speed</div>
+        <div id="stat-lookup-time" class="metric-value">0.000 ms</div>
+        <div class="metric-desc">Average prefix query time</div>
+      </div>
+    </div>
+
+    <!-- =====================================================================
+         TAB 1: AUTOCOMPLETE ENGINE CONTENT
+         ===================================================================== -->
+    <div id="tab-content-engine" class="tab-content active">
+      <div class="dashboard-grid">
+        
+        <!-- Left Column: Search & Benchmarks -->
+        <div class="panel">
+          <h2 class="panel-title"><span>🔍</span> Search Interface</h2>
+          <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem;">
+            Type a prefix to perform a memory-efficient DFS lookup on the Radix Tree.
+          </p>
+
+          <div class="search-wrapper">
+            <div class="search-input-container">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="city-search" placeholder="Search Indian cities... (e.g. del, mum, ban)" autocomplete="off">
+              <span id="clear-search" class="clear-icon" style="display: none;">✕</span>
+            </div>
+
+            <!-- Dropdown suggestions -->
+            <div id="suggestions-dropdown" class="suggestions-container">
+              <div class="suggestions-header">
+                <span>Suggestions (Top 10)</span>
+                <span id="suggestions-metrics">0 matches</span>
+              </div>
+              <ul id="suggestions-list" class="suggestions-list">
+                <!-- Dynamically populated -->
+              </ul>
+            </div>
+          </div>
+
+          <div class="benchmark-card">
+            <div class="benchmark-title">
+              <span>Lookup Constraint Benchmarking</span>
+              <span id="benchmark-status" style="color: var(--color-success);">PASSED</span>
+            </div>
+            <div class="benchmark-bar-container">
+              <div id="benchmark-bar" class="benchmark-bar" style="width: 0.8%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+              <span>0.0 ms</span>
+              <span style="color: var(--color-accent); font-weight: bold;" id="benchmark-exact-time">0.0000 ms</span>
+              <span>Limit: 5.0 ms</span>
+            </div>
+          </div>
+
+          <!-- Stress Test challenge -->
+          <div class="benchmark-card" style="margin-top: 1rem; border-color: rgba(168, 85, 247, 0.3);">
+            <div class="benchmark-title" style="color: var(--color-purple);">
+              <span>🚀 Engine Performance Stress Test</span>
+              <span id="stress-test-status" style="font-size: 0.8rem; font-weight: 500; color: var(--text-muted);">Ready</span>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              Run 10,000 lookups on random city prefixes to check engine throughput.
+            </p>
+            <div class="stress-stats" style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.5rem; display: none;" id="stress-stats-display">
+              <div>Avg Speed: <span id="stress-avg-speed" style="color: var(--color-accent); font-weight: bold;">0.000 ms</span></div>
+              <div>Throughput: <span id="stress-throughput" style="color: var(--color-success); font-weight: bold;">0 ops/s</span></div>
+            </div>
+            <button id="btn-stress-test" class="visualizer-btn" style="width: 100%; background: rgba(168, 85, 247, 0.12); border-color: rgba(168, 85, 247, 0.4); color: var(--color-purple); font-weight: 600; padding: 0.6rem; border-radius: var(--radius-sm);">
+              Run 10,000 Lookup Stress Test
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Column: Visualizer -->
+        <div class="panel visualizer-card">
+          <div class="visualizer-header">
+            <h2 class="panel-title" style="margin-bottom: 0; padding-bottom: 0; border: none;">
+              <span>🌿</span> Radix Tree Visualizer
+            </h2>
+            <div class="visualizer-controls">
+              <button id="btn-mode-playground" class="visualizer-btn active">Playground Tree</button>
+              <button id="btn-mode-search" class="visualizer-btn">Search Path</button>
+            </div>
+          </div>
+          <p id="visualizer-description" style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+            Playground Mode: Insert custom strings to see how the Radix Tree splits and compresses edge labels.
+          </p>
+
+          <div class="svg-container">
+            <svg id="tree-svg" class="svg-canvas"></svg>
+          </div>
+
+          <div id="playground-form-container" class="playground-form">
+            <input type="text" id="playground-input" placeholder="Type a custom word (e.g. 'cart', 'category', 'cat')..." autocomplete="off">
+            <button id="playground-btn-insert">Insert Word</button>
+            <button id="playground-btn-reset" class="visualizer-btn" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: rgb(239, 68, 68);">Reset</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =====================================================================
+         TAB 2: DATABASE SEED EXPORTER (Useful Tool)
+         ==================================================================== -->
+    <div id="tab-content-routes" class="tab-content">
+      <div class="dashboard-grid">
+        
+        <!-- Left Panel: Filters and Configuration Builder -->
+        <div class="panel">
+          <h2 class="panel-title"><span>💻</span> Database Seeding Exporter</h2>
+          <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem;">
+            Configure database seeding filters. Manually add specific cities using autocomplete or filter by states and naming patterns to generate schemas.
+          </p>
+
+          <!-- manual Select Input with autocomplete -->
+          <div style="position: relative; margin-bottom: 1.25rem;">
+            <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem; font-weight: 500;">Add Specific City</label>
+            <div class="search-input-container">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="route-destination" placeholder="Search and add a city... (e.g. kolkata)" autocomplete="off">
+            </div>
+            <div id="dropdown-destination" class="suggestions-container">
+              <div class="suggestions-header">
+                <span>Suggestions (Top 5)</span>
+                <span id="logistics-suggestions-metrics">0 matches</span>
+              </div>
+              <ul id="list-destination" class="suggestions-list"></ul>
+            </div>
+          </div>
+
+          <!-- Filter Configuration Fields -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem;">
+            <div>
+              <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem; font-weight: 500;">Filter by State</label>
+              <select id="export-state-filter" style="width:100%; background: rgba(2, 6, 23, 0.85); border: 2px solid var(--card-border); border-radius: var(--radius-sm); padding: 0.5rem; color: var(--text-primary); font-family: inherit;">
+                <option value="ALL">-- All States --</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="West Bengal">West Bengal</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Gujarat">Gujarat</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="Kerala">Kerala</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem; font-weight: 500;">Naming Suffix</label>
+              <input type="text" id="export-name-pattern" placeholder="e.g. pur, abad, garh" style="width:100%; background: rgba(2, 6, 23, 0.85); border: 2px solid var(--card-border); border-radius: var(--radius-sm); padding: 0.5rem; color: var(--text-primary); font-family: inherit;">
+            </div>
+          </div>
+
+          <!-- Format type and limits -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem;">
+            <div>
+              <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem; font-weight: 500;">Output Format</label>
+              <select id="export-format" style="width:100%; background: rgba(2, 6, 23, 0.85); border: 2px solid var(--card-border); border-radius: var(--radius-sm); padding: 0.5rem; color: var(--text-primary); font-family: inherit;">
+                <option value="json">JSON Array</option>
+                <option value="sql_postgres">SQL (PostgreSQL)</option>
+                <option value="sql_mysql">SQL (MySQL)</option>
+                <option value="csv">CSV Dataset</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem; font-weight: 500;">Export Limit</label>
+              <input type="number" id="package-weight" min="5" max="1000" step="5" value="25" style="width:100%; background: rgba(2, 6, 23, 0.85); border: 2px solid var(--card-border); border-radius: var(--radius-sm); padding: 0.5rem; color: var(--text-primary); font-family: inherit;">
+            </div>
+          </div>
+
+          <!-- Metrics summary for selected seeds -->
+          <div id="route-results-card" class="benchmark-card" style="border-color: rgba(6, 182, 212, 0.35);">
+            <div class="benchmark-title" style="color: var(--color-accent); font-size: 1rem; margin-bottom: 0.75rem;">
+              <span>📝 Export Statistics</span>
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem;">
+                <span>📂 Selected Cities Count:</span> <span id="logistics-cost" style="color: var(--color-success); font-weight:600;">25 cities</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem;">
+                <span>🐘 Estimated SQL Size:</span> <span id="logistics-zip" style="color: var(--text-primary); font-weight:500;">1.8 KB</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem;">
+                <span>🛠️ Schema table name:</span> <span style="color: var(--color-purple); font-weight:500; font-family: var(--font-mono); font-size:0.8rem;">indian_cities_directory</span>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span>⚙️ Character Encoding:</span> <span style="color: var(--text-muted); font-family: var(--font-mono); font-size:0.75rem;">UTF-8</span>
+              </div>
+            </div>
+          </div>
+          
+          <button id="btn-calc-route" class="visualizer-btn" style="width: 100%; background: var(--color-accent); border-color: var(--color-accent); color: var(--bg-primary); font-weight: 600; padding: 0.75rem; margin-top: 1rem;">
+            Generate Seed Schema
+          </button>
+        </div>
+
+        <!-- Right Panel: Live Code Syntax Viewer -->
+        <div class="panel visualizer-card">
+          <div class="visualizer-header">
+            <h2 class="panel-title" style="margin-bottom: 0; padding-bottom: 0; border: none;">
+              <span>⚡</span> Schema Code Output
+            </h2>
+            <div class="visualizer-controls">
+              <button id="btn-copy-seed" class="visualizer-btn active">Copy Code</button>
+              <button id="btn-download-seed" class="visualizer-btn" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: var(--color-success);">Download</button>
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+            Copy the generated INSERT script or JSON array directly into your database schema seeds.
+          </p>
+          <div class="svg-container" style="background: #020617; border-color: rgba(6, 182, 212, 0.2); display: flex; flex-direction: column; overflow: hidden;">
+            <pre style="margin: 0; padding: 1.25rem; overflow: auto; flex-grow: 1; font-family: var(--font-mono); font-size: 0.82rem; color: #a5f3fc; line-height: 1.6; white-space: pre-wrap;" id="export-code-block"></pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =====================================================================
+         TAB 3: GEOGUESS SPELLING GAME (Inbuilt Game)
+         ===================================================================== -->
+    <div id="tab-content-game" class="tab-content">
+      <div class="dashboard-grid">
+        
+        <!-- Left Panel: Game Arena -->
+        <div class="panel">
+          <h2 class="panel-title"><span>🎮</span> Geoguess spelling Challenge</h2>
+          <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem;">
+            Can you guess the Indian city from the scrambled letters? Use the autocomplete box to search for valid spellings as clues!
+          </p>
+
+          <!-- Scrambled word board -->
+          <div style="background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 100%); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: var(--radius-md); padding: 2.25rem 1rem; text-align: center; margin-bottom: 1.5rem; position: relative; overflow: hidden;">
+            <div style="font-size: 0.8rem; color: var(--color-purple); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem;">Scrambled City Name</div>
+            <div id="game-scrambled-word" style="font-size: 2.6rem; font-weight: 700; color: var(--text-primary); letter-spacing: 0.15em; word-break: break-all;">M U B I A M</div>
+          </div>
+
+          <!-- Clue Section -->
+          <div class="benchmark-card" style="margin-bottom: 1.5rem; border-color: var(--card-border); background: rgba(2, 6, 23, 0.45);">
+            <div style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary); display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+              <span>💡 Clues Revealed</span>
+              <button id="game-btn-reveal-clue" class="visualizer-btn" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Reveal Next Clue</button>
+            </div>
+            <div id="game-clue-text" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+              - Clue 1: Click button to reveal first letter clue...
+            </div>
+          </div>
+
+          <!-- Answer Input Section -->
+          <div style="position: relative; margin-bottom: 1.5rem;">
+            <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem; font-weight: 500;">Your Guess</label>
+            <div class="search-input-container">
+              <input type="text" id="game-guess-input" placeholder="Type city guess... (Autofill lists matching cities)" autocomplete="off">
+            </div>
+            <div id="dropdown-game" class="suggestions-container">
+              <div class="suggestions-header">
+                <span>Suggestions (Top 5)</span>
+                <span id="game-suggestions-metrics">0 matches</span>
+              </div>
+              <ul id="list-game" class="suggestions-list"></ul>
+            </div>
+          </div>
+
+          <!-- Control buttons -->
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.75rem;">
+            <button id="game-btn-submit" class="visualizer-btn" style="background: var(--color-primary); border-color: var(--color-primary); color: white; font-weight: 600; padding: 0.75rem;">Submit Answer</button>
+            <button id="game-btn-skip" class="visualizer-btn" style="background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); padding: 0.75rem;">Skip</button>
+          </div>
+        </div>
+
+        <!-- Right Panel: Scoreboard & Dashboard -->
+        <div class="panel" style="display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <h2 class="panel-title"><span>🏆</span> Scoring Dashboard</h2>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem;">
+              Correct answers build your score and active streak! High scores are saved locally so you can return to break your record.
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+              <div style="background: rgba(2, 6, 23, 0.5); padding: 1rem; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--card-border);">
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.25rem;">Score</div>
+                <div id="game-score" style="font-size: 1.8rem; font-weight: 700; color: var(--color-accent);">0</div>
+              </div>
+              <div style="background: rgba(2, 6, 23, 0.5); padding: 1rem; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--card-border);">
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.25rem;">Streak</div>
+                <div id="game-streak" style="font-size: 1.8rem; font-weight: 700; color: var(--color-purple);">0</div>
+              </div>
+              <div style="background: rgba(2, 6, 23, 0.5); padding: 1rem; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--card-border);">
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.25rem;">Best Streak</div>
+                <div id="game-best-streak" style="font-size: 1.8rem; font-weight: 700; color: var(--color-success);">0</div>
+              </div>
+            </div>
+
+            <!-- Feed/Logs Card -->
+            <div class="benchmark-card" style="background: rgba(2, 6, 23, 0.6); min-height: 140px;">
+              <div style="font-size: 0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color: var(--text-muted); margin-bottom: 0.5rem;">Activity Log</div>
+              <div id="game-log" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                <div style="color: var(--text-muted);">Game started. Unscramble the city name to earn points!</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.8rem;">
+            Challenge leverages the 15,000 GeoNames database to test geographical and spelling speed.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Comparative Table & Explanations Grid -->
+    <div class="comparison-section">
+      
+      <!-- GeoNames Pipeline Card -->
+      <div class="panel">
+        <h2 class="panel-title"><span>🔄</span> GeoNames Dataset Pipeline</h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1rem;">
+          How the 15,000 city database was prepared from the raw GeoNames database (IN.zip):
+        </p>
+        <ul class="info-list">
+          <li><strong>Downloading & Extraction:</strong> Fetched <code>IN.zip</code> containing <code>IN.txt</code>, representing Indian geographical features.</li>
+          <li><strong>Populated Place Filtering:</strong> Filtered class 'P' records (populated places/cities), discarding administrative entities, lakes, and monuments.</li>
+          <li><strong>Heuristic Sorting:</strong> Prioritized capitals (State and Country levels) first, then sorted in descending order of census population.</li>
+          <li><strong>Cleaning & Deduplication:</strong> Normalized strings to lowercase, collapsed spaces, stripped punctuation, and extracted the top 15,000 unique names.</li>
+        </ul>
+      </div>
+
+      <!-- Complexity Analysis Card -->
+      <div class="panel">
+        <h2 class="panel-title"><span>📊</span> Trie vs. Radix Tree Efficiency</h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 0.5rem;">
+          Dynamic comparison metrics of the active dataset:
+        </p>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Standard Trie</th>
+              <th>Radix Tree (Trie)</th>
+              <th>Improvement</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Total Nodes</strong></td>
+              <td id="table-st-nodes">-</td>
+              <td id="table-rt-nodes">-</td>
+              <td id="table-node-savings" style="color: var(--color-success); font-weight: 600;">-</td>
+            </tr>
+            <tr>
+              <td><strong>Total Characters</strong></td>
+              <td id="table-st-chars">-</td>
+              <td id="table-rt-chars">-</td>
+              <td id="table-char-savings" style="color: var(--color-success); font-weight: 600;">-</td>
+            </tr>
+            <tr>
+              <td><strong>Space Complexity</strong></td>
+              <td>O(Σ(len(word)))</td>
+              <td>O(N) - Key nodes</td>
+              <td>O(N) vs O(N * L)</td>
+            </tr>
+            <tr>
+              <td><strong>Search Complexity</strong></td>
+              <td>O(L) - Word length</td>
+              <td>O(L) - Less transitions</td>
+              <td>Higher Cache Locality</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Page Footer -->
+    <footer style="text-align: center; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--card-border); padding-top: 1.5rem; margin-top: 2rem;">
+      <p>Team SJA's Site • Designed for Academics & Benchmarks • JavaScript ES6 implementation</p>
+    </footer>
+
+  </div>
+
+  <!-- Include code modules -->
+  <script src="cities.js"></script>
+  <script src="trie.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
