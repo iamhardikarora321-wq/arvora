@@ -432,7 +432,7 @@
 
 <canvas id="bg"></canvas>
 <div class="progress-bar" id="progress"></div>
-<div class="slide-badge" id="slideBadge">01 / 10</div>
+<div class="slide-badge" id="slideBadge">01 / 12</div>
 <div class="key-hint">← → swipe or tap arrows</div>
 
 <div class="deck" id="deck">
@@ -503,8 +503,63 @@
     </div>
   </div>
 
-  <!-- ══ SLIDE 4: ENGINE ══ -->
+  <!-- ══ SLIDE 4: ALGORITHMIC SPLITTING ══ -->
   <div class="slide" id="s4">
+    <div class="tag">⚙️ Algorithm Detail</div>
+    <h2 class="slide-title">Edge Splitting Mechanics</h2>
+    <div class="divider"></div>
+    <p class="subtitle">When inserting a word, if a partial match occurs on an edge, the edge is split by introducing a branch node.</p>
+    <pre class="code-block" style="font-size: clamp(0.55rem, 1.5vw, 0.72rem); line-height: 1.45; max-height: 250px; overflow-y: auto;">
+// 1. Find matching prefix length (j) on edge
+let j = 0;
+while (j < edge.length && edge[j] === word[i + j]) j++;
+
+// 2. If partial match (j < edge.length), split!
+const splitNode = new RadixNode();
+const oldSuffix = edge.slice(j);
+splitNode.children[oldSuffix[0]] = [oldSuffix, childNode];
+
+// 3. Insert new suffix branch
+const newSuffix = word.slice(i + j);
+if (newSuffix) {
+  const leafNode = new RadixNode();
+  leafNode.isEnd = true;
+  splitNode.children[newSuffix[0]] = [newSuffix, leafNode];
+} else {
+  splitNode.isEnd = true;
+}
+
+// 4. Update parent edge with shared prefix
+parentNode.children[char] = [edge.slice(0, j), splitNode];</pre>
+    <p style="font-size: 0.75rem; color: var(--muted); margin-top: 0.8rem; text-align: center;">Handles dynamic tree balancing automatically during dataset loading.</p>
+  </div>
+
+  <!-- ══ SLIDE 5: MATHEMATICS & AUDIO ══ -->
+  <div class="slide" id="s5">
+    <div class="tag">📐 Math & Audio</div>
+    <h2 class="slide-title">Layout & Web Audio Synthesis</h2>
+    <div class="divider"></div>
+    <p class="subtitle">Recursive coordinate plotting and runtime frequency synthesis keep the project lightweight and fast.</p>
+    <div class="card-grid">
+      <div class="card" style="border-color: rgba(6,182,212,0.3);">
+        <div class="card-icon">📐</div>
+        <h3>Trie Layout Mathematics</h3>
+        <p>Calculates SVG node coordinates recursively using DFS. Leaf nodes are spaced evenly horizontally, and parent nodes are centered directly above the average of their children's positions.</p>
+      </div>
+      <div class="card" style="border-color: rgba(6,182,212,0.3);">
+        <div class="card-icon">🔊</div>
+        <h3>Web Audio Sound Synthesis</h3>
+        <p>Uses native browser `AudioContext` and oscillator nodes (sine & triangle waves) to synthesize feedback sounds (celebration chimes, error buzzes) at runtime with 0 audio files.</p>
+      </div>
+    </div>
+    <div class="metrics-row" style="margin-top: 1rem; max-width: 560px;">
+      <div class="metric"><div class="val">O(V + E)</div><div class="lbl">Recursive Layout</div></div>
+      <div class="metric"><div class="val">0 KB</div><div class="lbl">Sound Asset Size</div></div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 6: ENGINE ══ -->
+  <div class="slide" id="s6">
     <div class="tag">🔍 Tab 1</div>
     <h2 class="slide-title">Autocomplete Engine</h2>
     <div class="divider"></div>
@@ -543,8 +598,8 @@
     </div>
   </div>
 
-  <!-- ══ SLIDE 5: EXPORTER ══ -->
-  <div class="slide" id="s5">
+  <!-- ══ SLIDE 7: EXPORTER ══ -->
+  <div class="slide" id="s7">
     <div class="tag">💻 Tab 2</div>
     <h2 class="slide-title">Database Seed Exporter</h2>
     <div class="divider"></div>
@@ -557,8 +612,8 @@
     </div>
   </div>
 
-  <!-- ══ SLIDE 6: GAME ══ -->
-  <div class="slide" id="s6">
+  <!-- ══ SLIDE 8: GAME ══ -->
+  <div class="slide" id="s8">
     <div class="tag">🎮 Tab 3</div>
     <h2 class="slide-title">Geoguess Spelling Game</h2>
     <div class="divider"></div>
@@ -576,8 +631,8 @@
     </div>
   </div>
 
-  <!-- ══ SLIDE 7: METRICS ══ -->
-  <div class="slide" id="s7">
+  <!-- ══ SLIDE 9: METRICS ══ -->
+  <div class="slide" id="s9">
     <div class="tag">📊 Performance Metrics</div>
     <h2 class="slide-title">By the Numbers</h2>
     <div class="divider"></div>
@@ -601,8 +656,8 @@
     </div>
   </div>
 
-  <!-- ══ SLIDE 8: DATASET ══ -->
-  <div class="slide" id="s8">
+  <!-- ══ SLIDE 10: DATASET ══ -->
+  <div class="slide" id="s10">
     <div class="tag">🗄️ Dataset Pipeline</div>
     <h2 class="slide-title">How the City Database Was Built</h2>
     <div class="divider"></div>
@@ -616,8 +671,8 @@
     <p style="font-size:0.75rem;color:var(--dim);margin-top:1rem;text-align:center;">Source: geonames.org  •  Feature Class P  •  Country IN  •  CC BY 4.0</p>
   </div>
 
-  <!-- ══ SLIDE 9: TECH STACK ══ -->
-  <div class="slide" id="s9">
+  <!-- ══ SLIDE 11: TECH STACK ══ -->
+  <div class="slide" id="s11">
     <div class="tag">🛠️ Tech Stack</div>
     <h2 class="slide-title">Built With Zero Dependencies</h2>
     <div class="divider"></div>
@@ -642,8 +697,8 @@
     </div>
   </div>
 
-  <!-- ══ SLIDE 10: THANK YOU ══ -->
-  <div class="slide" id="s10">
+  <!-- ══ SLIDE 12: THANK YOU ══ -->
+  <div class="slide" id="s12">
     <div class="glow" style="width:350px;height:350px;background:var(--purple);top:-15%;right:-10%;"></div>
     <div class="glow" style="width:280px;height:280px;background:var(--cyan);bottom:-10%;left:-5%;"></div>
     <div class="tag">🎉 Thank You</div>
@@ -668,12 +723,12 @@
 <div class="nav">
   <button id="prevBtn" onclick="changeSlide(-1)" disabled>◀</button>
   <div class="dot-row" id="dots"></div>
-  <span class="slide-counter" id="counter">1 / 10</span>
+  <span class="slide-counter" id="counter">1 / 12</span>
   <button id="nextBtn" onclick="changeSlide(1)">▶</button>
 </div>
 
 <script>
-  const TOTAL = 10;
+  const TOTAL = 12;
   let current = 0;
   const slides = Array.from(document.querySelectorAll('.slide'));
   const progress = document.getElementById('progress');
