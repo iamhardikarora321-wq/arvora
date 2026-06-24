@@ -72,9 +72,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const tabBtnEngine = document.getElementById("tab-btn-engine");
   const tabBtnRoutes = document.getElementById("tab-btn-routes");
   const tabBtnGame = document.getElementById("tab-btn-game");
+  const tabBtnPattern = document.getElementById("tab-btn-pattern");
+  const tabBtnAnalytics = document.getElementById("tab-btn-analytics");
+  const tabBtnScanner = document.getElementById("tab-btn-scanner");
   const tabContentEngine = document.getElementById("tab-content-engine");
   const tabContentRoutes = document.getElementById("tab-content-routes");
   const tabContentGame = document.getElementById("tab-content-game");
+  const tabContentPattern = document.getElementById("tab-content-pattern");
+  const tabContentAnalytics = document.getElementById("tab-content-analytics");
+  const tabContentScanner = document.getElementById("tab-content-scanner");
 
   // Exporter DOM elements
   const routeDestination = document.getElementById("route-destination");
@@ -378,6 +384,9 @@ document.addEventListener("DOMContentLoaded", () => {
     tabBtnEngine.addEventListener("click", () => switchTab('engine'));
     tabBtnRoutes.addEventListener("click", () => switchTab('routes'));
     tabBtnGame.addEventListener("click", () => switchTab('game'));
+    tabBtnPattern.addEventListener("click", () => switchTab('pattern'));
+    tabBtnAnalytics.addEventListener("click", () => switchTab('analytics'));
+    tabBtnScanner.addEventListener("click", () => switchTab('scanner'));
 
     // --- Tab 1: Engine search input autocomplete handler ---
     searchInput.addEventListener("input", (e) => {
@@ -521,21 +530,28 @@ document.addEventListener("DOMContentLoaded", () => {
     activeTab = tabId;
     initAudio();
 
-    // Toggle button styles
-    tabBtnEngine.classList.toggle("active", tabId === 'engine');
-    tabBtnRoutes.classList.toggle("active", tabId === 'routes');
-    tabBtnGame.classList.toggle("active", tabId === 'game');
+    const allTabBtns = [tabBtnEngine, tabBtnRoutes, tabBtnGame, tabBtnPattern, tabBtnAnalytics, tabBtnScanner];
+    const allTabContents = [tabContentEngine, tabContentRoutes, tabContentGame, tabContentPattern, tabContentAnalytics, tabContentScanner];
+    const tabIds = ['engine', 'routes', 'game', 'pattern', 'analytics', 'scanner'];
+    const idx = tabIds.indexOf(tabId);
 
-    // Toggle content displays
-    tabContentEngine.classList.toggle("active", tabId === 'engine');
-    tabContentRoutes.classList.toggle("active", tabId === 'routes');
-    tabContentGame.classList.toggle("active", tabId === 'game');
+    allTabBtns.forEach((btn, i) => btn.classList.toggle("active", i === idx));
+    allTabContents.forEach((content, i) => {
+      if (content) {
+        content.classList.toggle("active", i === idx);
+        content.style.display = (i === idx) ? '' : 'none';
+      }
+    });
 
     playSelectSound();
     
     // Generate schema on tab switch
     if (tabId === 'routes') {
       setTimeout(generateDatabaseSeed, 20);
+    }
+    // Render analytics lazily on first visit
+    if (tabId === 'analytics') {
+      renderAnalytics();
     }
   }
 
@@ -1332,4 +1348,314 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fire initialization
   initializeApp();
+
+  // =====================================================================
+  // TAB 4: PATTERN SEARCH
+  // =====================================================================
+  let ptnCurrentMode = 'contains';
+  let ptnCurrentMatches = [];
+
+  function setupPatternSearch() {
+    const ptnInput = document.getElementById('ptn-input');
+    const ptnMinLen = document.getElementById('ptn-min-len');
+    const ptnMaxLen = document.getElementById('ptn-max-len');
+    const btnPtnSearch = document.getElementById('btn-ptn-search');
+    const ptnStats = document.getElementById('ptn-stats');
+    const ptnMatchCount = document.getElementById('ptn-match-count');
+    const ptnSearchTime = document.getElementById('ptn-search-time');
+    const ptnResultsList = document.getElementById('ptn-results-list');
+    const ptnShowingLabel = document.getElementById('ptn-showing-label');
+    const btnPtnExport = document.getElementById('btn-ptn-export');
+    const modeBtns = document.querySelectorAll('.ptn-mode-btn');
+
+    modeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modeBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        ptnCurrentMode = btn.dataset.mode;
+      });
+    });
+
+    function runPatternSearch() {
+      const query = ptnInput.value.trim().toLowerCase();
+      const minLen = parseInt(ptnMinLen.value) || 1;
+      const maxLen = parseInt(ptnMaxLen.value) || 100;
+
+      const t0 = performance.now();
+      ptnCurrentMatches = CITIES_DATA.filter(city => {
+        const c = city.toLowerCase();
+        if (c.length < minLen || c.length > maxLen) return false;
+        if (!query) return true;
+        switch (ptnCurrentMode) {
+          case 'contains': return c.includes(query);
+          case 'starts':   return c.startsWith(query);
+          case 'ends':     return c.endsWith(query);
+          case 'exact':    return c === query;
+          default:         return c.includes(query);
+        }
+      });
+      const t1 = performance.now();
+
+      ptnStats.style.display = 'block';
+      ptnMatchCount.textContent = ptnCurrentMatches.length.toLocaleString();
+      ptnSearchTime.textContent = `${(t1 - t0).toFixed(2)} ms`;
+      ptnShowingLabel.textContent = `Showing ${Math.min(ptnCurrentMatches.length, 500)} of ${ptnCurrentMatches.length} results`;
+
+      ptnResultsList.innerHTML = '';
+      const toShow = ptnCurrentMatches.slice(0, 500);
+      if (toShow.length === 0) {
+        ptnResultsList.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">No cities matched this pattern.</span>';
+      } else {
+        toShow.forEach(city => {
+          const tag = document.createElement('span');
+          tag.textContent = city;
+          tag.style.cssText = 'background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.3); border-radius:999px; padding:0.2rem 0.65rem; font-size:0.8rem; color:var(--color-accent); cursor:default; white-space:nowrap;';
+          ptnResultsList.appendChild(tag);
+        });
+      }
+      btnPtnExport.style.display = ptnCurrentMatches.length > 0 ? 'block' : 'none';
+    }
+
+    btnPtnSearch.addEventListener('click', runPatternSearch);
+    ptnInput.addEventListener('keydown', e => { if (e.key === 'Enter') runPatternSearch(); });
+
+    btnPtnExport.addEventListener('click', () => {
+      const blob = new Blob([ptnCurrentMatches.join('\n')], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `indian_cities_${ptnCurrentMode}_${Date.now()}.txt`;
+      a.click();
+    });
+  }
+  setupPatternSearch();
+
+  // =====================================================================
+  // TAB 5: CITY ANALYTICS
+  // =====================================================================
+  let analyticsRendered = false;
+
+  function renderAnalytics() {
+    if (analyticsRendered) return;
+    analyticsRendered = true;
+
+    const cities = CITIES_DATA.map(c => c.toLowerCase());
+
+    // --- Length Distribution ---
+    const lenMap = {};
+    let totalLen = 0;
+    cities.forEach(c => {
+      lenMap[c.length] = (lenMap[c.length] || 0) + 1;
+      totalLen += c.length;
+    });
+    const avgLen = (totalLen / cities.length).toFixed(1);
+    document.getElementById('analytics-avg-len').textContent = avgLen;
+
+    const lenChart = document.getElementById('analytics-length-chart');
+    const lenLabels = document.getElementById('analytics-length-labels');
+    const lenKeys = Object.keys(lenMap).map(Number).sort((a, b) => a - b);
+    const lenMax = Math.max(...Object.values(lenMap));
+    lenChart.innerHTML = '';
+    lenLabels.innerHTML = '';
+    lenKeys.forEach(k => {
+      const h = Math.round((lenMap[k] / lenMax) * 130);
+      const bar = document.createElement('div');
+      bar.title = `Length ${k}: ${lenMap[k]} cities`;
+      bar.style.cssText = `flex:1; min-width:4px; height:${h}px; background:linear-gradient(to top, var(--color-accent), var(--color-primary)); border-radius:2px 2px 0 0; opacity:0.85; transition:opacity 0.2s; cursor:default;`;
+      bar.onmouseover = () => bar.style.opacity = '1';
+      bar.onmouseout = () => bar.style.opacity = '0.85';
+      lenChart.appendChild(bar);
+
+      const lbl = document.createElement('span');
+      lbl.textContent = k;
+      lbl.style.cssText = 'flex:1; text-align:center; min-width:4px; font-size:0.55rem; color:var(--text-muted);';
+      lenLabels.appendChild(lbl);
+    });
+
+    // --- Letter Frequency ---
+    const letterMap = {};
+    cities.forEach(c => {
+      const ch = c[0];
+      if (ch && /[a-z]/.test(ch)) {
+        letterMap[ch] = (letterMap[ch] || 0) + 1;
+      }
+    });
+    const letterKeys = Object.keys(letterMap).sort();
+    const letterMax = Math.max(...Object.values(letterMap));
+    const topLetter = letterKeys.reduce((a, b) => (letterMap[a] || 0) >= (letterMap[b] || 0) ? a : b, letterKeys[0]);
+    document.getElementById('analytics-top-letter').textContent = `"${topLetter.toUpperCase()}" (${letterMap[topLetter].toLocaleString()} cities)`;
+
+    const letterChart = document.getElementById('analytics-letter-chart');
+    const letterLabels = document.getElementById('analytics-letter-labels');
+    letterChart.innerHTML = '';
+    letterLabels.innerHTML = '';
+    letterKeys.forEach(ch => {
+      const h = Math.round((letterMap[ch] / letterMax) * 130);
+      const bar = document.createElement('div');
+      bar.title = `"${ch.toUpperCase()}": ${letterMap[ch]} cities`;
+      bar.style.cssText = `flex:1; min-width:5px; height:${h}px; background:linear-gradient(to top, var(--color-purple), rgba(168,85,247,0.5)); border-radius:2px 2px 0 0; opacity:0.85; transition:opacity 0.2s; cursor:default;`;
+      bar.onmouseover = () => bar.style.opacity = '1';
+      bar.onmouseout = () => bar.style.opacity = '0.85';
+      letterChart.appendChild(bar);
+
+      const lbl = document.createElement('span');
+      lbl.textContent = ch.toUpperCase();
+      lbl.style.cssText = 'flex:1; text-align:center; min-width:5px; font-size:0.55rem; color:var(--text-muted);';
+      letterLabels.appendChild(lbl);
+    });
+
+    // --- Top Suffixes ---
+    const suffixLen = 3;
+    const suffixMap = {};
+    cities.forEach(c => {
+      if (c.length >= suffixLen + 1) {
+        const sfx = c.slice(-suffixLen);
+        suffixMap[sfx] = (suffixMap[sfx] || 0) + 1;
+      }
+    });
+    const topSuffixes = Object.entries(suffixMap).sort((a, b) => b[1] - a[1]).slice(0, 15);
+    const sfxMax = topSuffixes[0]?.[1] || 1;
+    const sfxContainer = document.getElementById('analytics-suffixes');
+    sfxContainer.innerHTML = '';
+    topSuffixes.forEach(([sfx, cnt]) => {
+      const pct = Math.round((cnt / sfxMax) * 100);
+      sfxContainer.innerHTML += `
+        <div style="font-size:0.82rem;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+            <span style="color:var(--text-primary); font-family:monospace;">-${sfx}</span>
+            <span style="color:var(--text-muted);">${cnt.toLocaleString()} cities</span>
+          </div>
+          <div style="height:4px; background:rgba(255,255,255,0.05); border-radius:2px;">
+            <div style="height:100%; width:${pct}%; background:linear-gradient(90deg, var(--color-success), rgba(16,185,129,0.4)); border-radius:2px;"></div>
+          </div>
+        </div>`;
+    });
+
+    // --- Top Prefixes ---
+    const prefixLen = 3;
+    const prefixMap = {};
+    cities.forEach(c => {
+      if (c.length >= prefixLen + 1) {
+        const pfx = c.slice(0, prefixLen);
+        prefixMap[pfx] = (prefixMap[pfx] || 0) + 1;
+      }
+    });
+    const topPrefixes = Object.entries(prefixMap).sort((a, b) => b[1] - a[1]).slice(0, 15);
+    const pfxMax = topPrefixes[0]?.[1] || 1;
+    const pfxContainer = document.getElementById('analytics-prefixes');
+    pfxContainer.innerHTML = '';
+    topPrefixes.forEach(([pfx, cnt]) => {
+      const pct = Math.round((cnt / pfxMax) * 100);
+      pfxContainer.innerHTML += `
+        <div style="font-size:0.82rem;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+            <span style="color:var(--text-primary); font-family:monospace;">${pfx}-</span>
+            <span style="color:var(--text-muted);">${cnt.toLocaleString()} cities</span>
+          </div>
+          <div style="height:4px; background:rgba(255,255,255,0.05); border-radius:2px;">
+            <div style="height:100%; width:${pct}%; background:linear-gradient(90deg, var(--color-primary), rgba(59,130,246,0.4)); border-radius:2px;"></div>
+          </div>
+        </div>`;
+    });
+  }
+
+  // =====================================================================
+  // TAB 6: TEXT SCANNER
+  // =====================================================================
+  function setupTextScanner() {
+    const scannerInput = document.getElementById('scanner-input');
+    const btnScan = document.getElementById('btn-scan');
+    const btnScanClear = document.getElementById('btn-scan-clear');
+    const scannerStats = document.getElementById('scanner-stats');
+    const scanWordCount = document.getElementById('scan-word-count');
+    const scanCityCount = document.getElementById('scan-city-count');
+    const scanTime = document.getElementById('scan-time');
+    const scannerOutput = document.getElementById('scanner-output');
+    const scannerCitiesList = document.getElementById('scanner-cities-list');
+    const btnScanCopy = document.getElementById('btn-scan-copy');
+
+    // Build a fast lookup Set from CITIES_DATA
+    const citySet = new Set(CITIES_DATA.map(c => c.toLowerCase()));
+
+    btnScan.addEventListener('click', () => {
+      const text = scannerInput.value;
+      if (!text.trim()) {
+        scannerOutput.innerHTML = '<span style="color:var(--text-muted);">Please paste some text first.</span>';
+        return;
+      }
+
+      const t0 = performance.now();
+
+      // Tokenize: split on non-alpha characters
+      const tokens = text.split(/([^a-zA-Z]+)/);
+      let wordCount = 0;
+      const foundCities = new Set();
+
+      // First pass: find cities (try 2-word combos too)
+      const wordTokens = text.match(/[a-zA-Z]+/g) || [];
+      wordCount = wordTokens.length;
+
+      // Single word match
+      wordTokens.forEach(w => {
+        if (citySet.has(w.toLowerCase())) foundCities.add(w.toLowerCase());
+      });
+      // Two-word match (e.g. "New Delhi", "Port Blair")
+      for (let i = 0; i < wordTokens.length - 1; i++) {
+        const combo = (wordTokens[i] + ' ' + wordTokens[i + 1]).toLowerCase();
+        if (citySet.has(combo)) foundCities.add(combo);
+      }
+
+      const t1 = performance.now();
+
+      scannerStats.style.display = 'block';
+      scanWordCount.textContent = wordCount.toLocaleString();
+      scanCityCount.textContent = foundCities.size.toLocaleString();
+      scanTime.textContent = `${(t1 - t0).toFixed(2)} ms`;
+
+      // Highlighted output: wrap city matches in <mark>
+      let highlighted = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const sortedCities = [...foundCities].sort((a, b) => b.length - a.length); // longest first
+      sortedCities.forEach(city => {
+        const escaped = city.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(`\\b${escaped}\\b`, 'gi');
+        highlighted = highlighted.replace(re, match =>
+          `<mark style="background:rgba(6,182,212,0.3); color:var(--color-accent); border-radius:3px; padding:0 2px;">${match}</mark>`
+        );
+      });
+      scannerOutput.innerHTML = highlighted || '<span style="color:var(--text-muted);">No text provided.</span>';
+
+      // City list tags
+      scannerCitiesList.innerHTML = '';
+      if (foundCities.size === 0) {
+        scannerCitiesList.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">No Indian cities detected in this text.</span>';
+        btnScanCopy.style.display = 'none';
+      } else {
+        [...foundCities].sort().forEach(city => {
+          const tag = document.createElement('span');
+          tag.textContent = city.replace(/\b\w/g, c => c.toUpperCase());
+          tag.style.cssText = 'background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.35); border-radius:999px; padding:0.2rem 0.65rem; font-size:0.8rem; color:var(--color-success); white-space:nowrap;';
+          scannerCitiesList.appendChild(tag);
+        });
+        btnScanCopy.style.display = 'block';
+      }
+    });
+
+    btnScanClear.addEventListener('click', () => {
+      scannerInput.value = '';
+      scannerOutput.innerHTML = '<span style="color:var(--text-muted);">Highlighted text will appear here after scanning...</span>';
+      scannerCitiesList.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">No cities detected yet.</span>';
+      scannerStats.style.display = 'none';
+      btnScanCopy.style.display = 'none';
+    });
+
+    btnScanCopy.addEventListener('click', () => {
+      const cityTags = scannerCitiesList.querySelectorAll('span');
+      const cityText = [...cityTags].map(t => t.textContent).join(', ');
+      navigator.clipboard.writeText(cityText).then(() => {
+        btnScanCopy.textContent = '✅ Copied!';
+        setTimeout(() => { btnScanCopy.textContent = '📋 Copy City List'; }, 2000);
+      });
+    });
+  }
+  setupTextScanner();
+
 });
