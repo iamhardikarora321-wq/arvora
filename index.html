@@ -452,17 +452,15 @@
       </div>
 
     </div>
-
-    <!-- Page Footer -->
-    <footer style="text-align: center; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--card-border); padding-top: 1.5rem; margin-top: 2rem;">
-      <p>Arvora ✨ • Crafted for Everyone &amp; Developers • JavaScript ES6 implementation</p>
-    </footer>
-
   </div>
 
   <!-- =====================================================================
-       TAB 4: PATTERN SEARCH
+       ALL REMAINING TABS — placed inside shared wrapper so they get proper
+       padding/centering from .app-tab-wrapper
        ===================================================================== -->
+  <div class="app-tab-wrapper">
+
+  <!-- TAB 4: PATTERN SEARCH -->
   <div id="tab-content-pattern" class="tab-content">
     <div class="dashboard-grid">
 
@@ -964,24 +962,23 @@
 
             <!-- Items list -->
             <div id="pack-items-list" style="display:flex; flex-direction:column; gap:0.4rem; max-height:220px; overflow-y:auto;"></div>
-
-            <!-- Custom item adder (shown on custom tab) -->
+          <!-- Custom item adder (shown on custom tab) -->
             <div id="pack-custom-adder" style="display:none; margin-top:0.75rem; display:none;">
               <div style="display:flex; gap:0.5rem;">
                 <input type="text" id="pack-custom-input" placeholder="Add custom item..." autocomplete="off"
                   style="flex:1; background:rgba(2,6,23,0.85); border:1px solid var(--card-border); border-radius:var(--radius-sm); padding:0.4rem 0.7rem; color:var(--text-primary); font-family:inherit; font-size:0.85rem;">
                 <button id="pack-custom-add-btn" class="visualizer-btn" style="padding:0.4rem 0.75rem; font-size:0.8rem;">➕</button>
               </div>
-            </div>
-          </div>
+             </div>
+           </div>
 
-        </div>
-  </div>
+         </div><!-- right column -->
+       </div><!-- trip-main-grid -->
+    </div><!-- inner max-width container -->
+  </div><!-- #tab-content-trip -->
 
-  <!-- =====================================================================
-       TAB 10: CITY DISCOVERY
-       ===================================================================== -->
-  <div id="tab-content-discovery" class="tab-content" style="display:none;">
+  <!-- TAB 10: CITY DISCOVERY -->
+  <div id="tab-content-discovery" class="tab-content">
     <div style="max-width:800px; margin:0 auto; padding: 0 1rem 3rem;">
       <div class="panel trip-hero-panel" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.07) 0%, rgba(139, 92, 246, 0.07) 100%); border-color: rgba(59, 130, 246, 0.2);">
         <h2 class="panel-title" style="margin-bottom:0.25rem;"><span>🎲</span> City Discovery</h2>
@@ -1047,10 +1044,8 @@
     </div>
   </div>
 
-  <!-- =====================================================================
-       TAB 11: FESTIVAL CALENDAR
-       ===================================================================== -->
-  <div id="tab-content-festivals" class="tab-content" style="display:none;">
+  <!-- TAB 11: FESTIVAL CALENDAR -->
+  <div id="tab-content-festivals" class="tab-content">
     <div style="max-width:1200px; margin:0 auto; padding: 0 1rem 3rem;">
       <div class="panel trip-hero-panel" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.07) 0%, rgba(245, 158, 11, 0.07) 100%); border-color: rgba(236, 72, 153, 0.2);">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
@@ -1091,10 +1086,8 @@
     </div>
   </div>
 
-  <!-- =====================================================================
-       TAB 12: CITY COMPARISON
-       ===================================================================== -->
-  <div id="tab-content-compare" class="tab-content" style="display:none;">
+  <!-- TAB 12: CITY COMPARISON -->
+  <div id="tab-content-compare" class="tab-content">
     <div style="max-width:900px; margin:0 auto; padding: 0 1rem 3rem;">
       <div class="panel trip-hero-panel" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.07) 0%, rgba(16, 185, 129, 0.07) 100%); border-color: rgba(6, 182, 212, 0.2);">
         <h2 class="panel-title" style="margin-bottom:0.25rem;"><span>🏙️</span> City Comparison</h2>
@@ -1158,10 +1151,8 @@
     </div>
   </div>
 
-  <!-- =====================================================================
-       TAB 13: BUDGET CALCULATOR
-       ===================================================================== -->
-  <div id="tab-content-budget" class="tab-content" style="display:none;">
+  <!-- TAB 13: BUDGET CALCULATOR -->
+  <div id="tab-content-budget" class="tab-content">
     <div style="max-width:1000px; margin:0 auto; padding: 0 1rem 3rem;">
       <div class="panel trip-hero-panel" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.07) 0%, rgba(139, 92, 246, 0.07) 100%); border-color: rgba(16, 185, 129, 0.2);">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
@@ -1279,9 +1270,16 @@
     </div>
   </div>
 
+  </div><!-- /.app-tab-wrapper -->
+
+  <!-- Page Footer -->
+  <footer style="text-align: center; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--card-border); padding-top: 1.5rem; margin-top: 2rem; max-width: 1400px; margin-left: auto; margin-right: auto; padding-left: 1.5rem; padding-right: 1.5rem;">
+    <p>Arvora ✨ • Crafted for Everyone &amp; Developers • JavaScript ES6 implementation</p>
+  </footer>
+
   <!-- Include code modules -->
-  <script src="cities.js?v=2.1.0"></script>
-  <script src="trie.js?v=2.1.0"></script>
-  <script src="app.js?v=2.1.0"></script>
+  <script src="cities.js?v=2.2.0"></script>
+  <script src="trie.js?v=2.2.0"></script>
+  <script src="app.js?v=2.2.0"></script>
 </body>
 </html>
