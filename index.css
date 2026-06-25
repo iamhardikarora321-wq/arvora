@@ -1680,4 +1680,19 @@ header {
   }
 }
 
+/* Card flip animation */
+.flip-animation {
+  animation: flipIn 0.5s ease-out;
+}
+@keyframes flipIn {
+  0% {
+    transform: perspective(400px) rotateX(15deg);
+    opacity: 0;
+  }
+  100% {
+    transform: perspective(400px) rotateX(0deg);
+    opacity: 1;
+  }
+}
+
 
