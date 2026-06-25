@@ -1383,3 +1383,301 @@ header {
   animation: fadeIn var(--transition-normal);
 }
 
+/* =====================================================================
+   TRIP PLANNER STYLES
+   ===================================================================== */
+
+.trip-hero-panel {
+  background: linear-gradient(135deg, rgba(6,182,212,0.07) 0%, rgba(168,85,247,0.07) 100%);
+  border-color: rgba(6,182,212,0.2);
+}
+
+/* Trip stop card */
+.trip-stop-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  animation: fadeInDown 0.3s ease;
+}
+.trip-stop-card:hover {
+  border-color: rgba(6,182,212,0.3);
+  box-shadow: 0 4px 16px rgba(6,182,212,0.08);
+}
+
+.trip-stop-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.trip-stop-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-accent), var(--color-purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.trip-stop-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.trip-stop-controls {
+  display: flex;
+  gap: 0.3rem;
+  margin-left: auto;
+}
+
+.trip-stop-controls button {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.trip-stop-controls button:hover {
+  background: rgba(6,182,212,0.15);
+  border-color: rgba(6,182,212,0.4);
+  color: var(--color-accent);
+}
+.trip-stop-controls .btn-remove:hover {
+  background: rgba(239,68,68,0.12);
+  border-color: rgba(239,68,68,0.3);
+  color: #f87171;
+}
+
+.trip-stop-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.6rem;
+  align-items: end;
+}
+
+.trip-stop-fields label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.trip-stop-fields input,
+.trip-stop-fields select {
+  width: 100%;
+  background: rgba(2,6,23,0.7);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  transition: border-color 0.15s;
+}
+.trip-stop-fields input:focus,
+.trip-stop-fields select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.trip-stop-notes {
+  width: 100%;
+  background: rgba(2,6,23,0.7);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  resize: vertical;
+  min-height: 54px;
+  transition: border-color 0.15s;
+}
+.trip-stop-notes:focus {
+  outline: none;
+  border-color: rgba(168,85,247,0.5);
+}
+
+/* Vibe tags */
+.trip-vibe-tags {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.trip-vibe-tag {
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  border: 1px solid var(--card-border);
+  font-size: 0.75rem;
+  cursor: pointer;
+  background: rgba(255,255,255,0.03);
+  color: var(--text-muted);
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.trip-vibe-tag.active {
+  background: rgba(168,85,247,0.18);
+  border-color: rgba(168,85,247,0.45);
+  color: var(--color-purple);
+}
+
+/* Connector line between stops */
+.trip-stop-connector {
+  width: 2px;
+  height: 20px;
+  background: linear-gradient(to bottom, rgba(6,182,212,0.4), rgba(168,85,247,0.2));
+  margin: 0 0 0 13px;
+}
+
+/* Day-by-day itinerary timeline */
+.itinerary-day {
+  display: flex;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  animation: fadeInDown 0.25s ease;
+}
+.itinerary-day:last-child { border-bottom: none; }
+
+.itinerary-day-number {
+  min-width: 48px;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  padding-top: 0.1rem;
+}
+
+.itinerary-day-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  margin-top: 4px;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px var(--color-accent-glow);
+}
+.itinerary-day-dot.travel { background: var(--color-purple); box-shadow: 0 0 6px var(--color-purple-glow); }
+
+.itinerary-day-content {
+  flex: 1;
+}
+.itinerary-day-city {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.itinerary-day-note {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+  font-style: italic;
+}
+
+/* Trip summary stat rows */
+.trip-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  padding: 0.3rem 0;
+}
+
+/* Packing category buttons */
+.pack-cat-btn {
+  padding: 0.3rem 0.7rem;
+  border-radius: 9999px;
+  border: 1px solid var(--card-border);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.pack-cat-btn:hover {
+  border-color: rgba(168,85,247,0.4);
+  color: var(--color-purple);
+}
+.pack-cat-btn.active {
+  background: rgba(168,85,247,0.15);
+  border-color: rgba(168,85,247,0.5);
+  color: var(--color-purple);
+  font-weight: 600;
+}
+
+/* Packing item row */
+.pack-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+}
+.pack-item:hover {
+  background: rgba(255,255,255,0.04);
+}
+.pack-item input[type="checkbox"] {
+  accent-color: var(--color-accent);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.pack-item-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  transition: color 0.15s;
+}
+.pack-item.checked .pack-item-label {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.pack-item-delete {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.15s;
+  padding: 0.1rem 0.3rem;
+}
+.pack-item:hover .pack-item-delete {
+  opacity: 1;
+}
+
+/* Responsive: stack grid on small screens */
+@media (max-width: 900px) {
+  .trip-main-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
