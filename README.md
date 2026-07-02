@@ -2,7 +2,7 @@
 
 > A high-performance, browser-based **Radix Tree Autocomplete Engine** built entirely in vanilla JavaScript — featuring a live tree visualizer, database seed exporter, and an Indian city spelling game.
 
-🌐 **Live Site:** [iamhardikarora321-wq.github.io/arvora](https://iamhardikarora321-wq.github.io/arvora)
+🌐 **Live Site:** [hardik-arora.github.io/arvora](https://hardik-arora.github.io/arvora)
 
 ---
 
@@ -92,7 +92,7 @@ The city database was prepared from the raw **GeoNames** `IN.zip` dataset:
 No build step required — it's a static site!
 
 ```bash
-git clone https://github.com/iamhardikarora321-wq/arvora.git
+git clone https://github.com/hardik-arora/arvora.git
 cd arvora
 python3 -m http.server 8080
 # Open http://localhost:8080
